@@ -4,4 +4,4 @@ export const showName = () => {
   console.log(name);
 };
 
-console.log('I am a.js', Object.keys({ name }));
+console.log('I am a.js');
