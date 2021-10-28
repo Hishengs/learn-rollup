@@ -4,11 +4,16 @@ module.exports = {
       "@babel/preset-env",
       {
         targets: {
-          browsers: ["defaults", "ie >= 9"]
+          browsers: ["ie >= 11"]
         },
-        useBuiltIns: "usage",
-        corejs: 3
+        // "modules": false,
+        "useBuiltIns": "usage",
+        // "useBuiltIns": "entry",
+        "corejs": '3.19'
       }
     ]
+  ],
+  plugins: [
+    "@babel/plugin-transform-runtime"
   ]
 };
