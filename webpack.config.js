@@ -7,9 +7,10 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.join(__dirname, "./dist/webpack"),
-    iife: true,
+    // iife: true,
+    library: 'MyBundle',
   },
-  module: {
+  /* module: {
     rules: [
       {
         test: /\.js$/,
@@ -19,7 +20,7 @@ module.exports = {
         },
       },
     ],
-  },
+  }, */
   /* plugins: [
     new BundleAnalyzerPlugin({
       reportFilename: path.join(outputDir, name.replace("js", "html")),

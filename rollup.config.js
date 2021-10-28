@@ -20,8 +20,8 @@ export default {
     // },
     {
       file: 'dist/rollup/iife.js',
-      format: 'cjs',
-      name: 'MyBundle'
+      format: 'iife',
+      // name: 'MyBundle'
     }
   ],
   plugins: [
