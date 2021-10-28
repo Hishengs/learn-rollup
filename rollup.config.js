@@ -3,7 +3,7 @@ import commonjs from '@rollup/plugin-commonjs';
 // import { babel } from '@rollup/plugin-babel';
 
 export default {
-  input: 'src/a~.js',
+  input: 'src/index.js',
   output: [
     // {
     //   file: 'dist/cjs.js',
@@ -19,8 +19,8 @@ export default {
     //   name: 'MyBundle'
     // },
     {
-      file: 'dist/iife.js',
-      format: 'iife',
+      file: 'dist/rollup/iife.js',
+      format: 'cjs',
       name: 'MyBundle'
     }
   ],

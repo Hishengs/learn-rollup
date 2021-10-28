@@ -2,6 +2,7 @@
 
 ## 安装
 将 rollup 安装为项目的开发依赖
+
 ```js
 npm i rollup -D
 ```
@@ -200,13 +201,13 @@ console.log('I am a.js');
 })();
 ```
 
-> 注意，这里的导出由 `exports` 挂载，直接变成了 `module.exports`，这样在浏览器环境不久运行不了吗？先留个伏笔，下面会讲到
+> 注意，这里的导出由 `exports` 挂载，直接变成了 `module.exports`，这样在浏览器环境不就运行不了吗？先留个伏笔，下面会讲到
 
 果然，找不到 `__esModule` 的定义了，那这个标识到底有什么用呢？
 
 可以看下 stackoverflow 这个回答：[What's the purpose of `Object.defineProperty(exports, "__esModule", { value: !0 })`?](https://stackoverflow.com/questions/50943704/whats-the-purpose-of-object-definepropertyexports-esmodule-value-0)
 
-第 6 点，很显然，我们需要将导出的内容进行挂载，不管是在 node 环境，或者浏览器环境全局对象
+第 6 点，很显然，我们需要将导出的内容进行挂载，不管是在 node 环境，或者浏览器环境全局对象。
 
 ### 第 2 次探索：模块引用
 我们使用 es module / commonjs 当然是为了模块化的方式去写代码，当出现模块之间的引用，rollup 是怎么打包和处理的呢？
@@ -253,4 +254,197 @@ console.log('I am aa.js');
 `a.js` 和 `aa.js` 存在同名的变量和函数，rollup 会怎么处理这个问题的呢？我们直接看输出的代码：
 
 ```js
+var MyBundle = (function (exports) {
+  'use strict';
+
+  const name$1 = 'a';
+
+  const showName$1 = () => {
+    console.log(name$1);
+  };
+
+  console.log('I am a.js');
+
+  var a = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    name: name$1,
+    showName: showName$1
+  });
+
+  const name = 'aa';
+
+  const showName = () => {
+    console.log(name);
+  };
+
+  console.log('I am aa.js');
+
+  var aa = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    name: name,
+    showName: showName
+  });
+
+  exports.a = a;
+  exports.aa = aa;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+  return exports;
+
+})({});
 ```
+
+可以看到，当遇到重名的变量和函数时，rollup 会对变量名进行重写，解决方式简单粗暴、有效。
+
+
+### 第 3 次探索：循环引用
+
+如果模块之间存在循环引用，例如模块 c 引用了 模块 d，模块 d 又引用了模块 c，我们使用以下代码模拟：
+
+`c.js`
+
+```js
+import { name as _name } from './d';
+
+export const name = 'c';
+
+export const showName = () => {
+  console.log(_name);
+};
+
+console.log('I am c.js');
+showName();
+```
+
+`d.js`
+
+```js
+import { name as _name } from './c';
+
+export const name = 'd';
+
+export const showName = () => {
+  console.log(_name);
+};
+
+console.log('I am d.js');
+showName();
+```
+
+改写下 `index.js`
+
+```js
+import * as c from './c';
+import * as d from './d';
+
+export {
+  c,
+  d
+};
+```
+
+很简单，两个模块分别都定义了 `name` 和 `showName` 函数，各自引用对方的 `name`, 并分别在 `showName` 中打印出各自的名字。
+
+按照 `index.js` 的顺序，控制台最终会打印出什么呢？
+
+答案是：
+
+会报错...
+
+```js
+Uncaught ReferenceError: Cannot access 'name' before initialization
+```
+
+我们分析下，执行 `index.js` 第一行时：`import * as c from './c';` 脚本暂时挂起
+
+`c.js` 会被执行，从上到下，执行第一行：`import { name as _name } from './d';` 脚本暂时挂起
+
+`d.js` 被执行，开始执行 `import { name as _name } from './c';`
+
+由于此时在 `c.js` 中脚本只执行了第一行，并未导出任何变量，所以在 `d.js` 中，这句导入的 `name as _name` 是不存在的；
+
+继续执行，分别导出了 `name` 和函数 `showName`，然后在执行 `console.log('I am d.js', showName());` 时，由于 `_name` 在 `c.js` 暂未导出，因此报错。
+
+当我们使用 rollup 打包时，也明确给出了警告，存在循环引用风险：
+
+```sh
+(!) Circular dependency
+src\c.js -> src\d.js -> src\c.js
+```
+
+想想看，如果我们在 `c.js` 模块的 `name` 导出之后，再引用 `d.js` 是不是就没问题了呢，像这样：
+
+```js
+export const name = 'c';
+// 挪下位置
+import { name as _name } from './d';
+
+export const showName = () => {
+  console.log(_name);
+};
+
+console.log('I am c.js');
+showName()
+```
+
+再次执行：
+
+```js
+Uncaught ReferenceError: Cannot access 'name' before initialization
+```
+
+依然报错... 看了下我们的输出文件内容，发现跟之前打包的一模一样...
+
+为什么呢？
+
+其实是因为 es module 是会进行静态分析的，所有的 import 语句，只能在最外层作用域定义，且无论在哪一行，都会被提到顶部进行解析。所以，即使挪了位置也没用。
+
+不过... commonjs 是可以的！
+
+我们改写下：
+
+```js
+const name = 'c';
+
+exports.name = name;
+
+const { name: _name } = require('./d.js');
+
+function showName () {
+  console.log(_name);
+};
+
+exports.showName = showName;
+
+console.log('I am c.js');
+showName();
+```
+
+再次执行：
+> 在 node 环境执行
+
+```js
+I am d.js
+undefined // showName() in d.js
+I am c.js
+d         // showName() in c.js
+```
+
+确实可以，没有报错，但为什么在 `d.js` `showName()` 打出的是 undefined 呢？
+
+因为在 commonjs 中，模块得在完整执行后才有导出。
+
+综上，可以看出，不同的模块化方案，在解析和执行代码时，存在一些差异，值得关注，这里可以参考：[ES6-模块与-CommonJS-模块的差异](https://es6.ruanyifeng.com/#docs/module-loader#ES6-%E6%A8%A1%E5%9D%97%E4%B8%8E-CommonJS-%E6%A8%A1%E5%9D%97%E7%9A%84%E5%B7%AE%E5%BC%82)；下面章节，再单独讨论下这个问题。
+
+### 第 4 次探索：我们应该用什么格式、模块化方案写我们的代码呢？
+
+我们日常接触最多的模块化方案，一个是 node 环境下的 commonjs，一个是现代浏览器下的 es module. 至于像 amd, umd 等已经接触很少，属于历史遗留产物了。
+
+那么，加入我们写应用程序，或者写组件库，写工具库，应该选择哪种模块化方案呢？打包输出时，又该选择哪种呢？
+
+这个问题应该分为两个维度去分析：写的时候，以及打包输出。
+
+写代码的时候，其实不管是 commonjs 还是 es module 都可以，别最好统一一种，别在一个文件内，穿插使用两种方式；并且，小心注意两种模块化方案之间的区别即可。
+
+> 当然，还是推荐用 es module, 毕竟 node 新版本也支持 esm 了

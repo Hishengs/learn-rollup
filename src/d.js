@@ -2,8 +2,9 @@ import { name as _name } from './c';
 
 export const name = 'd';
 
-export const showNameInC = () => {
+export const showName = () => {
   console.log(_name);
 };
 
-console.log('I am d.js', showNameInC());
+console.log('I am d.js');
+showName();
