@@ -3,12 +3,20 @@ const path = require("path");
 
 module.exports = {
   mode: "production",
-  entry: path.join(__dirname, "./src/index.js"),
+  entry: path.join(__dirname, "./src/chunk/index.js"),
   output: {
+    clean: true,
     filename: 'bundle.js',
     path: path.join(__dirname, "./dist/webpack"),
-    // iife: true,
-    library: 'MyBundle',
+    // library: {
+    //   // name: 'MyLibrary',
+    //   type: 'commonjs2',
+    //   export: 'default'
+    // },
+    iife: false,
+    // library: 'MyBundle',
+    // crossOriginLoading: 'anonymous',
+    chunkFilename: '[id].[chunkhash:8].js',
   },
   /* module: {
     rules: [

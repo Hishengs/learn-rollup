@@ -1,7 +1,7 @@
-export const name = 'aa';
+export const name = 'b';
 
 export const showName = () => {
   console.log(name);
 };
 
-console.log('I am aa.js');
+console.log('I am b.js');

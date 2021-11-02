@@ -1,36 +1,27 @@
 import commonjs from '@rollup/plugin-commonjs';
-// import { nodeResolve } from '@rollup/plugin-node-resolve';
-// import { babel } from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { babel } from '@rollup/plugin-babel';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/chunk/index.js',
   output: [
     // {
-    //   file: 'dist/cjs.js',
-    //   format: 'cjs'
-    // },
-    // {
-    //   file: 'dist/es.js',
-    //   format: 'es'
-    // },
-    // {
-    //   file: 'dist/umd.js',
-    //   format: 'umd',
-    //   name: 'MyBundle'
-    // },
+    //   file: 'dist/rollup/iife.js',
+    //   format: 'iife',
+    // }
     {
-      file: 'dist/rollup/iife.js',
-      format: 'iife',
-      // name: 'MyBundle'
+      dir: 'dist/rollup/chunk',
+      // format: "system",
+      // format: 'cjs',
     }
   ],
   plugins: [
-    // nodeResolve({
-    //   browser: true
-    // }),
+    nodeResolve({
+      browser: true
+    }),
     commonjs({
       ignoreTryCatch: false
     }),
-    // babel({ babelHelpers: 'bundled' }),
+    babel({ babelHelpers: 'bundled' }),
   ]
 };
