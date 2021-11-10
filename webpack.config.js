@@ -45,7 +45,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/tree-shaking/index2.js',
+  entry: './src/pkg-main/index.js',
   output: {
     clean: true,
     filename: 'bundle.js',
@@ -56,5 +56,6 @@ module.exports = {
   mode: 'production',
   optimization: {
     // usedExports: true,
+    minimize: false,
   },
 };
