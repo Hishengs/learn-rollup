@@ -50,6 +50,10 @@ module.exports = {
     clean: true,
     filename: 'bundle.js',
     path: path.resolve(__dirname, './dist/webpack'),
+    // library: {
+    //   // name: 'MyLib',
+    //   // type: 'commonjs'
+    // }
   },
   // devtool: 'inline-source-map',
   // mode: 'development',
@@ -58,4 +62,8 @@ module.exports = {
     // usedExports: true,
     minimize: false,
   },
+  resolve: {
+    mainFields: ['main', 'module']
+  }
+  // target: 'node'
 };
