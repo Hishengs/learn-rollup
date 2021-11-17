@@ -107,7 +107,25 @@ define(function(require, exports, module) {
 
 还有另外一个经常看到的：UMD，但 UMD 是模块化方案吗？
 
-其实不是的，UMD 只是一个代码输出格式而已。可以理解为，未模块加了一层 wrapper, 然后根据环境进行判断，包装成环境所在模块化系统的模块。
+其实不是的，UMD 只是一个代码输出格式而已。可以理解为，为模块加了一层 wrapper, 然后根据环境进行判断，包装成环境所在模块化系统的模块。其包装代码是这样的：
+
+```js
+(function (global, factory) {
+  // commonjs
+  typeof exports === 'object' && typeof module !== 'undefined'
+    ? factory(exports)
+    // AMD
+    : typeof define === 'function' && define.amd
+      ? define(['exports'], factory)
+      : (global = typeof globalThis !== 'undefined'
+        ? globalThis
+        : global || self, factory(global.MyLib = {}));
+})(this, (function (exports) { 'use strict';
+
+  // 你的模块代码
+
+}));
+```
 
 ## 参考文章
 
