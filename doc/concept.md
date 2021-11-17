@@ -30,4 +30,6 @@
 
 即代码分割。主要目的是为了按需加载代码（dynamic imports），或者减少入口文件的大小。
 
-## polyfill, preset
+## preset, polyfill
+
+babel 的转换包含两部分，一部分是 preset，作语法转换；一部分是 polyfill，作 API 转换。

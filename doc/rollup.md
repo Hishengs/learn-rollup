@@ -214,6 +214,24 @@ console.log('I am a.js');
 
 可以看下 stackoverflow 这个回答：[What's the purpose of `Object.defineProperty(exports, "__esModule", { value: !0 })`?](https://stackoverflow.com/questions/50943704/whats-the-purpose-of-object-definepropertyexports-esmodule-value-0)
 
+简而言之，打包工具需要这个标识来辨别一个模块是不是 es module，从而决定当使用**默认导入**时如何通过 exports 取值：
+
+esm
+
+```js
+import xx from 'xx';
+```
+
+最终导入的是 exports.default
+
+cjs
+
+```js
+const xx = require('xx');
+```
+
+最终导入的是 exports
+
 第 6 点，很显然，我们需要将导出的内容进行挂载，不管是在 node 环境，或者浏览器环境全局对象。
 
 ### 第 2 次探索：模块引用
@@ -478,24 +496,30 @@ d         // showName() in c.js
 
 ### 第 5 次探索：在旧版本浏览器执行我的代码该注意些什么？
 
-TODO...
+preset, polyfill
 
 ### 第 6 次探索：打包出来的文件太大了怎么办？
 
-TODO...
+minification, chunk
 
 ### 第 7 次探索：打包出来的文件太多了怎么办？
 
-TODO...
+vendor chunk
 
 ### 第 8 次探索：如何处理我的静态资源？以及其他奇奇怪怪的资源？
 
-TODO...
+loader => js
+
+css => js => \<style\>
 
 ### 第 9 次探索：为什么我改了代码还是不更新？如何处理部署时新旧版本的冲突？
 
-TODO...
+版本，hash
 
-### 第 10 次探索：代码太多，打包太大了怎么办？
+### 第 10 次探索：如何移除冗余的代码？
 
-TODO...
+tree-shaking, sideEffects
+
+### 第 11 次探索：开发时如何实时预览修改后的效果？
+
+live-reload, HMR (hot module reload)
