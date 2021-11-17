@@ -3,7 +3,7 @@
 // import { babel } from '@rollup/plugin-babel';
 
 export default {
-  input: 'src/tree-shaking/index.js',
+  input: 'src/circular-reference/index.js',
   output: [
     {
       file: 'dist/rollup/bundle.js',
@@ -13,6 +13,7 @@ export default {
     //   dir: 'dist/rollup/chunk',
     //   // format: "system",
     //   // format: 'cjs',
+    //   format: 'amd'
     // }
   ],
   plugins: [

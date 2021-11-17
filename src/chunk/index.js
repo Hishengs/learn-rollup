@@ -1,4 +1,4 @@
-import 'core-js/modules/es.promise';
+// import 'core-js/modules/es.promise';
 import * as a from './a.js';
 
 console.log('I am entry module');

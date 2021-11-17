@@ -45,15 +45,15 @@
 const path = require('path');
 
 module.exports = {
-  entry: './src/pkg-main/index.js',
+  entry: './src/circular-reference/index.js',
   output: {
     clean: true,
     filename: 'bundle.js',
     path: path.resolve(__dirname, './dist/webpack'),
-    // library: {
-    //   // name: 'MyLib',
-    //   // type: 'commonjs'
-    // }
+    library: {
+      name: 'MyLib',
+      type: 'var'
+    }
   },
   // devtool: 'inline-source-map',
   // mode: 'development',
@@ -62,8 +62,11 @@ module.exports = {
     // usedExports: true,
     minimize: false,
   },
-  resolve: {
-    mainFields: ['main', 'module']
-  }
-  // target: 'node'
+  // resolve: {
+  //   mainFields: ['main', 'module']
+  // }
+  // target: 'node',
+  // experiments: {
+  //   outputModule: true
+  // }
 };
